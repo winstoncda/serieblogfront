@@ -6,6 +6,7 @@ import ErrorPage from "./pages/ErrorPage";
 import Login from "./pages/Forms/Login";
 import { rootLoader } from "./loaders/rootLoader";
 import UserNotConnected from "./components/ProtectedRoutes/UserNotConnected";
+import BlogDetails from "./pages/Blog/BlogDetails";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
             <Login />
           </UserNotConnected>
         ),
+      },
+      {
+        path: "/blog/:id",
+        element: <BlogDetails />,
       },
     ],
   },

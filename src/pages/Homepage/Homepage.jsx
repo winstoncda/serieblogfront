@@ -2,11 +2,14 @@ import { useState } from "react";
 import { useBlog } from "../../context/BlogContext";
 import { useAuth } from "../../context/AuthContext";
 import AddBlogModal from "../Blog/AddBlogModal";
+import BlogCard from "../Blog/BlogCard";
 
 export default function Blog() {
   const { blogs } = useBlog();
   const { userConnected } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  console.log({ blogs });
 
   return (
     <div className="container mx-auto p-6">
@@ -39,9 +42,7 @@ export default function Blog() {
       ) : (
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {blogs.map((b) => (
-            <p key={b._id} blog={b}>
-              test
-            </p>
+            <BlogCard key={b._id} blog={b} />
           ))}
         </div>
       )}
