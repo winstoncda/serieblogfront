@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { uploadImage } from "../../lib/uploadService";
 import { useBlog } from "../../context/BlogContext";
 
-const schema = yup.object().shape({
+const schema = yup.object({
   title: yup.string().required("Le titre est obligatoire"),
   content: yup.string().required("Le contenu est obligatoire"),
   image: yup
