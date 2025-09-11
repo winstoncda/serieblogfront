@@ -45,3 +45,14 @@ export async function rateBlog(blogId, rating) {
     console.log(error);
   }
 }
+
+export async function deleteRateBlog(blogId) {
+  try {
+    await fetch(`${BASE_URL}rating/${blogId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}

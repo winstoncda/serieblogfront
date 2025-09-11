@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useBlog } from "../../context/BlogContext";
 import StarRating from "../../utils/StarRating";
-import { rateBlog } from "../../api/blog.api";
+import { deleteRateBlog, rateBlog } from "../../api/blog.api";
 
 export default function BlogDetails() {
   // récupération de l'id du blog en détail dans l'URL
@@ -47,10 +47,12 @@ export default function BlogDetails() {
 
   const canInteract = userConnected && userConnected._id !== blog.author?._id;
 
-  const handleWatchedClick = () => {
-    setHasWatched(!hasWatched);
-    if (!hasWatched) {
+  const handleWatchedClick = async () => {
+    const newValue = !hasWatched;
+    setHasWatched(newValue);
+    if (!newValue) {
       setUserRating(0);
+      await deleteRateBlog(blog._id);
     }
   };
 
