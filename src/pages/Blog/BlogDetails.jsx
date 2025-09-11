@@ -17,6 +17,8 @@ export default function BlogDetails() {
 
   // variables pour ensuite gérer la note et les commentaires
   const [ratings, setRatings] = useState([]);
+  const [hasWatched, setHasWatched] = useState(false);
+  const [userRating, setUserRating] = useState(0);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
 
@@ -43,6 +45,14 @@ export default function BlogDetails() {
       : 0;
 
   const canInteract = userConnected && userConnected._id !== blog.author?._id;
+
+  const handleWatchedClick = () => {
+    setHasWatched(!hasWatched);
+  };
+
+  const handleRating = (rating) => {
+    setUserRating(rating);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,24 +124,36 @@ export default function BlogDetails() {
                   </h3>
                   <div className="mb-8">
                     <button
-                      className={`flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all text-lg bg-gray-100 text-gray-700 border-2 border-gray-300 hover:bg-gray-200"
+                      className={`flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all text-lg
+                        ${
+                          !hasWatched ? "bg-gray-100" : "bg-green-400"
+                        }  text-gray-700 border-2 border-gray-300 hover:bg-gray-200"
                       `}
+                      onClick={handleWatchedClick}
                     >
-                      {"Marquer comme vue"}
+                      {hasWatched ? "Série vue" : "Marquer comme vue"}
                     </button>
                   </div>
 
-                  <div className="border-t pt-6">
-                    <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                      Notez cette série :
-                    </h4>
-                    <div className="flex items-center gap-2 mb-4">
-                      <StarRating maxStars={5} />
+                  {hasWatched && (
+                    <div className="border-t pt-6">
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                        Notez cette série :
+                      </h4>
+                      <div className="flex items-center gap-2 mb-4">
+                        <StarRating
+                          maxStars={5}
+                          rating={userRating}
+                          onRatingChange={handleRating}
+                        />
+                      </div>
+                      {userRating ? (
+                        <p className="text-sm text-green-600 font-medium">
+                          ✓ Vous avez noté {userRating} /5
+                        </p>
+                      ) : null}
                     </div>
-                    <p className="text-sm text-green-600 font-medium">
-                      ✓ Vous avez noté /5
-                    </p>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <div className="border-t pt-6">
