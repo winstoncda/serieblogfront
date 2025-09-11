@@ -26,3 +26,22 @@ export async function createBlog(data) {
   //   }
   return response.json();
 }
+
+// noter un blog
+
+export async function rateBlog(blogId, rating) {
+  try {
+    const response = await fetch(`${BASE_URL}rating/${blogId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ value: rating }),
+      credentials: "include",
+    });
+
+    return response.json();
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useBlog } from "../../context/BlogContext";
 import StarRating from "../../utils/StarRating";
+import { rateBlog } from "../../api/blog.api";
 
 export default function BlogDetails() {
   // récupération de l'id du blog en détail dans l'URL
@@ -48,9 +49,13 @@ export default function BlogDetails() {
 
   const handleWatchedClick = () => {
     setHasWatched(!hasWatched);
+    if (!hasWatched) {
+      setUserRating(0);
+    }
   };
 
-  const handleRating = (rating) => {
+  const handleRating = async (rating) => {
+    await rateBlog(blog._id, rating);
     setUserRating(rating);
   };
 
