@@ -13,6 +13,8 @@ export default function BlogDetails() {
   const { userConnected } = useAuth();
   const { blogs } = useBlog();
 
+  console.log(blogs);
+
   // variables pour ensuite gérer la note et les commentaires
   const [ratings, setRatings] = useState([]);
   const [comments, setComments] = useState([]);
@@ -39,6 +41,8 @@ export default function BlogDetails() {
           ratings.length
         ).toFixed(1)
       : 0;
+
+  const canInteract = userConnected && userConnected._id !== blog.author?._id;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -102,42 +106,42 @@ export default function BlogDetails() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Votre avis
-              </h3>
-              <div className="mb-8">
-                <button
-                  className={`flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all text-lg bg-gray-100 text-gray-700 border-2 border-gray-300 hover:bg-gray-200"
+            {userConnected ? (
+              canInteract ? (
+                <div className="bg-white rounded-2xl p-8 shadow-lg">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                    Votre avis
+                  </h3>
+                  <div className="mb-8">
+                    <button
+                      className={`flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all text-lg bg-gray-100 text-gray-700 border-2 border-gray-300 hover:bg-gray-200"
                       `}
-                >
-                  {"Marquer comme vue"}
-                </button>
-              </div>
+                    >
+                      {"Marquer comme vue"}
+                    </button>
+                  </div>
 
-              <div className="border-t pt-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  Notez cette série :
-                </h4>
-                <div className="flex items-center gap-2 mb-4">
-                  <StarRating maxStars={5} />
+                  <div className="border-t pt-6">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                      Notez cette série :
+                    </h4>
+                    <div className="flex items-center gap-2 mb-4">
+                      <StarRating maxStars={5} />
+                    </div>
+                    <p className="text-sm text-green-600 font-medium">
+                      ✓ Vous avez noté /5
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm text-blue-600 mb-2">
-                  Note sélectionnée : /5
-                </p>
-                <p className="text-sm text-green-600 font-medium">
-                  ✓ Vous avez noté /5
-                </p>
-              </div>
-
-              {userConnected._id === blog.author?._id && (
+              ) : (
                 <div className="border-t pt-6">
                   <p className="text-blue-600 italic text-center">
                     Vous êtes l'auteur de cet article
                   </p>
                 </div>
-              )}
-            </div>
+              )
+            ) : null}
+
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Commentaires ({comments.length})

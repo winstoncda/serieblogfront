@@ -24,12 +24,7 @@ const Star = ({ filled, onMouseEnter, onMouseLeave, onClick, disabled }) => {
   );
 };
 
-const StarRating = ({
-  maxStars = 5,
-  rating = 0,
-  onRatingChange,
-  canRate = true,
-}) => {
+const StarRating = ({ maxStars = 5, rating = 0, onRatingChange }) => {
   const [hovered, setHovered] = useState(0);
   const [currentRating, setCurrentRating] = useState(rating);
 
@@ -38,19 +33,16 @@ const StarRating = ({
   }, [rating]);
 
   const handleMouseEnter = (index) => {
-    if (!canRate) return;
     setHovered(index);
   };
 
   const handleMouseLeave = () => {
-    if (!canRate) return;
     setHovered(0);
   };
 
   const handleClick = (index) => {
-    if (!canRate) return;
     setCurrentRating(index);
-    if (onRatingChange) onRatingChange(index);
+    onRatingChange(index);
   };
 
   return (
@@ -65,7 +57,6 @@ const StarRating = ({
             onMouseEnter={() => handleMouseEnter(starIndex)}
             onMouseLeave={handleMouseLeave}
             onClick={() => handleClick(starIndex)}
-            disabled={!canRate}
           />
         );
       })}
