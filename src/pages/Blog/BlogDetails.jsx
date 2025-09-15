@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useBlog } from "../../context/BlogContext";
 import StarRating from "../../utils/StarRating";
-import { deleteRateBlog, rateBlog } from "../../api/blog.api";
+import { deleteRateBlog } from "../../api/blog.api";
 
 export default function BlogDetails() {
   // récupération de l'id du blog en détail dans l'URL
@@ -14,7 +14,7 @@ export default function BlogDetails() {
   const { userConnected } = useAuth();
   const { blogs, rateInBlogContext } = useBlog();
 
-  console.log(blogs);
+  // console.log(blogs);
 
   // variables pour ensuite gérer la note et les commentaires
   const [ratings, setRatings] = useState([]);
@@ -23,10 +23,13 @@ export default function BlogDetails() {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
 
-  console.log(ratings);
+  // console.log(ratings);
 
   // Trouver le blog détaillé parmi tous les blog grace à l'ID
   const blog = blogs.find((b) => b._id === id);
+  const [blogData, setBlogData] = useState(blog);
+
+  console.log({ blogData });
 
   // si le blog n'existe pas (mauvais ID) redirection vers la page d'accueil
   useEffect(() => {
@@ -35,15 +38,38 @@ export default function BlogDetails() {
     }
   }, [blog, navigate]);
 
+  useEffect(() => {
+    if (!blogData || !userConnected) {
+      setHasWatched(false);
+      setUserRating(0);
+    }
+
+    // const existingRating = blogData.ratings.find((r) => {
+    //   const authorId = r.author.id;
+    //   return authorId === userConnected._id;
+    // });
+    const existingRating = blogData.ratings.find(
+      (r) => r.author._id === userConnected._id
+    );
+
+    if (existingRating) {
+      setHasWatched(true);
+      setUserRating(existingRating.value);
+    } else {
+      setHasWatched(false);
+      setUserRating(0);
+    }
+  }, [userConnected, blogData?.ratings]);
+
   // évite la page d'erreur si pas de blog en attendant la redirection du useEffect
   if (!blog) return <div>Blog introuvable...</div>;
 
   // Calcul de la moyenne des notes
   const averageRating =
-    ratings.length > 0
+    blog.ratings.length > 0
       ? (
-          ratings.reduce((sum, rating) => sum + rating.value, 0) /
-          ratings.length
+          blog.ratings.reduce((sum, rating) => sum + rating.value, 0) /
+          blog.ratings.length
         ).toFixed(1)
       : 0;
 
@@ -59,7 +85,10 @@ export default function BlogDetails() {
   };
 
   const handleRating = async (rating) => {
-    await rateInBlogContext(blog._id, rating);
+    const newNote = await rateInBlogContext(blog._id, rating);
+    console.log(newNote);
+    setHasWatched(true);
+    setUserRating(newNote.value);
   };
 
   return (

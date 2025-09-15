@@ -9,7 +9,7 @@ export function BlogProvider({ children }) {
   const [blogs, setBlogs] = useState([]);
   const { userConnected } = useAuth();
 
-  console.log(blogs);
+  // console.log(blogs);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -37,31 +37,31 @@ export function BlogProvider({ children }) {
   const rateInBlogContext = async (blogId, value) => {
     try {
       const newRating = await rateBlog(blogId, value);
-      console.log(newRating);
+      // console.log(newRating);
       setBlogs((prev) =>
         prev.map((blog) => {
-          console.log({ blog });
+          // console.log({ blog }); // affichage de chaque blog sur lequel on boucle
           if (blog._id === blogId) {
+            // on enlève la note de l'utilisateur connecté
             const filteredRatings = blog.ratings.filter((r) => {
               const authorId =
                 typeof r.author === "string" ? r.author : r.author._id;
               return authorId !== userConnected._id;
             });
-            console.log({ filteredRatings });
+            // console.log({ filteredRatings });
             const newRatings = [...filteredRatings, newRating];
-            console.log({ newRatings });
+            // console.log({ newRatings });
 
             return {
               ...blog,
               ratings: newRatings,
             };
           }
-          console.log("blog 2", blog);
-
+          // console.log("blog 2", blog); // retourne les blogs non concernés
           return blog;
         })
       );
-      console.log("new rating final", newRating);
+      // console.log("new rating final", newRating);
 
       return newRating;
     } catch (error) {
