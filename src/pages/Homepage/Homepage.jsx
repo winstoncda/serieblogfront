@@ -9,7 +9,7 @@ export default function Blog() {
   const { userConnected } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log({ blogs });
+  // console.log({ blogs });
 
   return (
     <div className="container mx-auto p-6">

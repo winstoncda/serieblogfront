@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const initialUser = useLoaderData();
   const [userConnected, setUserConnected] = useState(initialUser);
 
-  console.log(userConnected);
+  // console.log(userConnected);
   const login = async (values) => {
     setUserConnected(values);
   };

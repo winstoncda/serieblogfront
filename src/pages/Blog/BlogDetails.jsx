@@ -12,7 +12,7 @@ export default function BlogDetails() {
 
   // récupération de l'utilisateur connecté et des blogs
   const { userConnected } = useAuth();
-  const { blogs } = useBlog();
+  const { blogs, rateInBlogContext } = useBlog();
 
   console.log(blogs);
 
@@ -22,6 +22,8 @@ export default function BlogDetails() {
   const [userRating, setUserRating] = useState(0);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
+
+  console.log(ratings);
 
   // Trouver le blog détaillé parmi tous les blog grace à l'ID
   const blog = blogs.find((b) => b._id === id);
@@ -57,8 +59,7 @@ export default function BlogDetails() {
   };
 
   const handleRating = async (rating) => {
-    await rateBlog(blog._id, rating);
-    setUserRating(rating);
+    await rateInBlogContext(blog._id, rating);
   };
 
   return (
@@ -103,7 +104,7 @@ export default function BlogDetails() {
                   </span>
                 </p>
 
-                {averageRating > 0 && (
+                {ratings.length > 0 && (
                   <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-full">
                     <span className="text-yellow-500 text-lg">⭐</span>
                     <span className="font-bold text-gray-900">
