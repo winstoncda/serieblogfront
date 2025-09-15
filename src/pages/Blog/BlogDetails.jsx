@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useBlog } from "../../context/BlogContext";
 import StarRating from "../../utils/StarRating";
-import { deleteRateBlog } from "../../api/blog.api";
+import { addComment, deleteRateBlog } from "../../api/blog.api";
 
 export default function BlogDetails() {
   // récupération de l'id du blog en détail dans l'URL
@@ -29,7 +29,7 @@ export default function BlogDetails() {
   const blog = blogs.find((b) => b._id === id);
   const [blogData, setBlogData] = useState(blog);
 
-  console.log({ blogData });
+  // console.log({ blogData });
 
   // si le blog n'existe pas (mauvais ID) redirection vers la page d'accueil
   useEffect(() => {
@@ -89,6 +89,12 @@ export default function BlogDetails() {
     console.log(newNote);
     setHasWatched(true);
     setUserRating(newNote.value);
+  };
+
+  const handlePostComment = async () => {
+    console.log(commentText);
+    const newComment = await addComment(commentText, blogData._id);
+    console.log(newComment);
   };
 
   return (
@@ -214,7 +220,10 @@ export default function BlogDetails() {
                     className="w-full border-2 border-gray-200 rounded-xl p-4 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all resize-none"
                     rows="4"
                   />
-                  <button className="mt-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                  <button
+                    onClick={handlePostComment}
+                    className="mt-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
                     Publier le commentaire
                   </button>
                 </div>

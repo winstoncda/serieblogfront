@@ -56,3 +56,19 @@ export async function deleteRateBlog(blogId) {
     console.log(error);
   }
 }
+
+export async function addComment(content, blogId) {
+  try {
+    const response = await fetch(`${BASE_URL}comment/${blogId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+      credentials: "include",
+    });
+    return response.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
