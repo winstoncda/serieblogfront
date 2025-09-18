@@ -19,6 +19,25 @@ export async function signUp(values) {
   }
 }
 
+export async function authGoogle(values) {
+  console.log(values);
+
+  const token = values.credential;
+  try {
+    const response = await fetch(`${BASE_URL}user/auth-google`, {
+      method: "POST",
+      body: JSON.stringify({ token }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    const newUserMessage = await response.json();
+    return newUserMessage;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function signIn(values) {
   try {
     const response = await fetch(`${BASE_URL}user/login`, {
