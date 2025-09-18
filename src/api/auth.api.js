@@ -58,3 +58,19 @@ export async function signout() {
     credentials: "include",
   });
 }
+
+export const updateUserProfile = async (data) => {
+  try {
+    const response = await fetch(`${BASE_URL}user/profile`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-type": "application/json",
+      },
+      credentials: "include",
+    });
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+  }
+};

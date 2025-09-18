@@ -14,3 +14,19 @@ export async function uploadImage(file) {
 
   return data.publicUrl;
 }
+
+export async function uploadAvatar(file) {
+  console.log(file);
+
+  const filePath = `blogs/${Date.now()}_${file.name}`;
+
+  const { error } = await supabase.storage
+    .from("blog-images")
+    .upload(filePath, file);
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from("blog-images").getPublicUrl(filePath);
+
+  return data.publicUrl;
+}

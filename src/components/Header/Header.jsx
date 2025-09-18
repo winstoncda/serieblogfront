@@ -13,6 +13,12 @@ export default function Header() {
         {userConnected ? (
           <>
             <NavLink
+              to="/profile"
+              className="text-gray-600 hover:text-black font-semibold cursor-pointer"
+            >
+              <span>Bienvenue {userConnected.username}</span>
+            </NavLink>
+            <NavLink
               to="/login"
               onClick={logout}
               className="text-gray-600 hover:text-black font-semibold"
