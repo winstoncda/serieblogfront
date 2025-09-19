@@ -72,3 +72,14 @@ export async function addComment(content, blogId) {
     console.log(error);
   }
 }
+
+export async function getBlogById(blogId) {
+  try {
+    const res = await fetch(`${BASE_URL}blog/blog/${blogId}`, {
+      credentials: "include",
+    });
+    return res.json();
+  } catch (error) {
+    console.error(error);
+  }
+}

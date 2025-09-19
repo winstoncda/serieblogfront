@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useBlog } from "../../context/BlogContext";
 import StarRating from "../../utils/StarRating";
-import { addComment, deleteRateBlog } from "../../api/blog.api";
+import { addComment, getBlogById, deleteRateBlog } from "../../api/blog.api";
 
 export default function BlogDetails() {
   // récupération de l'id du blog en détail dans l'URL
@@ -14,22 +14,17 @@ export default function BlogDetails() {
   const { userConnected } = useAuth();
   const { blogs, rateInBlogContext } = useBlog();
 
-  // console.log(blogs);
+  console.log(blogs);
 
-  // variables pour ensuite gérer la note et les commentaires
-  const [ratings, setRatings] = useState([]);
   const [hasWatched, setHasWatched] = useState(false);
   const [userRating, setUserRating] = useState(0);
-  const [comments, setComments] = useState([]);
-  const [commentText, setCommentText] = useState("");
 
-  // console.log(ratings);
-
-  // Trouver le blog détaillé parmi tous les blog grace à l'ID
   const blog = blogs.find((b) => b._id === id);
+  const [comments, setComments] = useState(blog?.comments || []);
+  const [commentText, setCommentText] = useState("");
   const [blogData, setBlogData] = useState(blog);
 
-  // console.log({ blogData });
+  console.log({ blogData });
 
   // si le blog n'existe pas (mauvais ID) redirection vers la page d'accueil
   useEffect(() => {
@@ -39,18 +34,31 @@ export default function BlogDetails() {
   }, [blog, navigate]);
 
   useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        const full = await getBlogById(id);
+        setBlogData(full);
+        setComments(full.comments || []);
+      } catch (err) {
+        console.error("Erreur récupération blog détail:", err);
+        navigate("/");
+      }
+    };
+
+    fetchBlog();
+  }, [id, navigate]);
+
+  useEffect(() => {
     if (!blogData || !userConnected) {
       setHasWatched(false);
       setUserRating(0);
+      return;
     }
 
-    // const existingRating = blogData.ratings.find((r) => {
-    //   const authorId = r.author.id;
-    //   return authorId === userConnected._id;
-    // });
-    const existingRating = blogData.ratings.find(
-      (r) => r.author._id === userConnected._id
-    );
+    const existingRating = (blogData.ratings || []).find((r) => {
+      const authorId = typeof r.author === "string" ? r.author : r.author._id;
+      return authorId === userConnected._id;
+    });
 
     if (existingRating) {
       setHasWatched(true);
@@ -59,7 +67,7 @@ export default function BlogDetails() {
       setHasWatched(false);
       setUserRating(0);
     }
-  }, [userConnected, blogData?.ratings]);
+  }, [blogData?.ratings, userConnected]);
 
   // évite la page d'erreur si pas de blog en attendant la redirection du useEffect
   if (!blog) return <div>Blog introuvable...</div>;
@@ -79,22 +87,90 @@ export default function BlogDetails() {
     const newValue = !hasWatched;
     setHasWatched(newValue);
     if (!newValue) {
-      setUserRating(0);
-      await deleteRateBlog(blog._id);
+      try {
+        await deleteRateBlog(blogData._id);
+        setUserRating(0);
+        // mettre à jour localement les notes
+        setBlogData((prev) => ({
+          ...prev,
+          ratings: (prev.ratings || []).filter((r) => {
+            const authorId =
+              typeof r.author === "string" ? r.author : r.author._id;
+            return authorId !== userConnected._id;
+          }),
+        }));
+      } catch (err) {
+        console.error("Erreur suppression note:", err);
+      }
     }
   };
 
+  // 4) noter (utilise rateBlogInContext qui met à jour le context)
   const handleRating = async (rating) => {
-    const newNote = await rateInBlogContext(blog._id, rating);
-    console.log(newNote);
-    setHasWatched(true);
-    setUserRating(newNote.value);
+    console.log("Tentative de notation", rating);
+    try {
+      const newRating = await rateInBlogContext(blogData._id, rating);
+      if (!newRating) {
+        console.error("Aucune réponse du serveur pour la note");
+        return;
+      }
+
+      setHasWatched(true);
+      setUserRating(newRating.value);
+
+      setBlogData((prev) => {
+        const filtered = (prev.ratings || []).filter((r) => {
+          const authorId =
+            typeof r.author === "string" ? r.author : r.author._id;
+          return authorId !== userConnected._id;
+        });
+        return { ...prev, ratings: [...filtered, newRating] };
+      });
+
+      console.log("Note enregistrée");
+    } catch (error) {
+      console.error("Erreur lors de la notation:", error);
+    }
   };
 
+  // 5) publier un commentaire
   const handlePostComment = async () => {
-    console.log(commentText);
-    const newComment = await addComment(commentText, blogData._id);
-    console.log(newComment);
+    if (!commentText || !commentText.trim()) return;
+    if (!userConnected) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const tempComment = {
+      _id: tempId,
+      content: commentText,
+      author: {
+        _id: userConnected._id,
+        username: userConnected.username,
+      },
+      createdAt: new Date().toISOString(),
+      isTemp: true,
+    };
+
+    // affichage immédiat
+    setComments((prev) => [tempComment, ...(prev || [])]);
+    setCommentText("");
+
+    try {
+      const saved = await addComment(tempComment.content, blogData._id);
+      // remplacer le commentaire temporaire par la version serveur (avec _id réel)
+      setComments((prev) => prev.map((c) => (c._id === tempId ? saved : c)));
+      // synchroniser blogData.comments
+      setBlogData((prev) => ({
+        ...prev,
+        comments: [
+          saved,
+          ...(prev.comments || []).filter((c) => c._id !== tempId),
+        ],
+      }));
+    } catch (error) {
+      setComments((prev) => prev.filter((c) => c._id !== tempId));
+      console.error("Erreur envoi commentaire :", error);
+      r;
+    }
   };
 
   return (
@@ -139,14 +215,14 @@ export default function BlogDetails() {
                   </span>
                 </p>
 
-                {ratings.length > 0 && (
+                {averageRating > 0 && (
                   <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-full">
                     <span className="text-yellow-500 text-lg">⭐</span>
                     <span className="font-bold text-gray-900">
                       {averageRating}/5
                     </span>
                     <span className="text-sm text-gray-600">
-                      ({ratings.length} avis)
+                      ({blogData.ratings.length} avis)
                     </span>
                   </div>
                 )}
@@ -220,12 +296,14 @@ export default function BlogDetails() {
                     className="w-full border-2 border-gray-200 rounded-xl p-4 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all resize-none"
                     rows="4"
                   />
-                  <button
-                    onClick={handlePostComment}
-                    className="mt-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  >
-                    Publier le commentaire
-                  </button>
+                  <div className="flex gap-3 items-center mt-3">
+                    <button
+                      onClick={handlePostComment}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all"
+                    >
+                      Publier le commentaire
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <p className="text-center text-gray-500 italic mb-8 p-6 bg-gray-50 rounded-xl">
@@ -241,15 +319,28 @@ export default function BlogDetails() {
                   </p>
                 ) : (
                   comments.map((comment) => (
-                    <div className="bg-gray-50 rounded-xl p-6">
+                    <div
+                      key={comment._id}
+                      className="bg-gray-50 rounded-xl p-6"
+                    >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold"></div>
-                          <span className="font-semibold text-gray-900"></span>
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            {comment.author?.username?.[0]?.toUpperCase() ||
+                              "?"}
+                          </div>
+                          <span className="font-semibold text-gray-900">
+                            {comment.author?.username || "Utilisateur"}
+                          </span>
                         </div>
-                        <span className="text-sm text-gray-500"></span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(comment.createdAt).toLocaleString()}
+                        </span>
                       </div>
-                      <p className="text-gray-700 leading-relaxed"></p>
+                      <p className="text-gray-700 leading-relaxed">
+                        {comment.content}
+                        {comment.isTemp ? " (envoi...)" : ""}
+                      </p>
                     </div>
                   ))
                 )}
