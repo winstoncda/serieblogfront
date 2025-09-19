@@ -5,8 +5,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import { authGoogle, signIn } from "../../api/auth.api";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
@@ -34,15 +33,6 @@ export default function Login() {
     resolver: yupResolver(schema),
     mode: "onChange",
   });
-
-  // async function loginGoogle(values) {
-  //   try {
-  //     const response = await authGoogle(values);
-  //     console.log(response);
-  //   } catch (error) {
-  //     toast.error("Erreur de connexion via Google");
-  //   }
-  // }
 
   const loginGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -121,14 +111,8 @@ export default function Login() {
           Submit
         </button>
       </form>
-      {/* <GoogleLogin
-        onSuccess={(credentialResponse) => {
-          loginGoogle(credentialResponse);
-        }}
-        onError={() => console.log("Login Google Failed")}
-      /> */}
       <button
-        onClick={() => loginGoogle()}
+        onClick={loginGoogle}
         className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg px-4 py-2 mt-4 hover:bg-gray-100 transition"
       >
         <FcGoogle className="text-xl" />

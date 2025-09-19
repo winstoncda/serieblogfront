@@ -9,6 +9,8 @@ export default function Profile() {
   const { userConnected } = useAuth();
   const fileInputRef = useRef(null);
 
+  console.log(userConnected);
+
   // gestion des images
   const [dragActive, setDragActive] = useState(false);
   const [preview, setPreview] = useState(userConnected.avatar || defaultAvatar);

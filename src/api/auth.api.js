@@ -20,9 +20,7 @@ export async function signUp(values) {
 }
 
 export async function authGoogle(values) {
-  console.log(values);
-
-  const token = values.credential;
+  const token = values.access_token;
   try {
     const response = await fetch(`${BASE_URL}user/auth-google`, {
       method: "POST",
@@ -30,6 +28,7 @@ export async function authGoogle(values) {
       headers: {
         "Content-type": "application/json",
       },
+      credentials: "include",
     });
     const newUserMessage = await response.json();
     return newUserMessage;
