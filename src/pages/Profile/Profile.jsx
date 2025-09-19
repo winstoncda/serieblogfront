@@ -178,56 +178,61 @@ export default function Profile() {
             className="w-full border rounded-lg p-3 bg-gray-100 cursor-not-allowed"
           />
         </div>
-        <div className="mb-6">
-          <button
-            type="button"
-            onClick={() => setShowPasswordForm(!showPasswordForm)}
-            className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-          >
-            <span className="font-semibold text-gray-700">
-              Modifier mon mot de passe
-            </span>
-            <span>{!showPasswordForm ? <FaArrowDown /> : <FaArrowUp />}</span>
-          </button>
-          {showPasswordForm && (
-            <div className="mt-4 space-y-4 p-4 border rounded-lg bg-gray-50">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mot de passe actuel
-                </label>
-                <input
-                  type="password"
-                  className="w-full border rounded-lg p-3"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                />
+        {userConnected.provider !== "google" && (
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={() => setShowPasswordForm(!showPasswordForm)}
+              className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+            >
+              <span className="font-semibold text-gray-700">
+                Modifier mon mot de passe
+              </span>
+              <span>{!showPasswordForm ? <FaArrowDown /> : <FaArrowUp />}</span>
+            </button>
+            {showPasswordForm && (
+              <div className="mt-4 space-y-4 p-4 border rounded-lg bg-gray-50">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Mot de passe actuel
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full border rounded-lg p-3"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full border rounded-lg p-3"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Confirmation du nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full border rounded-lg p-3"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+                {passwordError && (
+                  <p className="text-red-600">{passwordError}</p>
+                )}
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Nouveau mot de passe
-                </label>
-                <input
-                  type="password"
-                  className="w-full border rounded-lg p-3"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Confirmation du nouveau mot de passe
-                </label>
-                <input
-                  type="password"
-                  className="w-full border rounded-lg p-3"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
-              {passwordError && <p className="text-red-600">{passwordError}</p>}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
+
         {error && <p className="text-red-600 mb-2">{error}</p>}
         {success && <p className="text-green-600 mb-2">{success}</p>}
         <button
