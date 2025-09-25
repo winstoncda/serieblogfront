@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { BlogProvider } from "./context/BlogContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { NotificationProvider } from "./context/NotificationContext";
 
 function App() {
   const location = useLocation();
@@ -20,14 +21,16 @@ function App() {
       <GoogleOAuthProvider clientId={clientId}>
         <AuthProvider>
           <BlogProvider>
-            <Header />
-            <main
-              className={`flex-1 ${
-                isCentered ? "flex items-center justify-center" : ""
-              }`}
-            >
-              <Outlet />
-            </main>
+            <NotificationProvider>
+              <Header />
+              <main
+                className={`flex-1 ${
+                  isCentered ? "flex items-center justify-center" : ""
+                }`}
+              >
+                <Outlet />
+              </main>
+            </NotificationProvider>
           </BlogProvider>
         </AuthProvider>
       </GoogleOAuthProvider>
